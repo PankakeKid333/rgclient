@@ -1,0 +1,26 @@
+{
+  "name": "rgchat",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-05",
+  "d1_databases": [
+    {
+      "binding": "rgchat2",
+      "database_name": "rgchat2",
+      "database_id": "b39181e4-a7a2-4ea1-abf7-060690895b1d"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CHAT_ROOM",
+        "class_name": "ChatRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ChatRoom"]
+    }
+  ]
+}

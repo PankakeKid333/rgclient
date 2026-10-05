@@ -1,5 +1,5 @@
 {
-  "name": "rgchat",
+  "name": "rgclient",
   "main": "src/index.js",
   "compatibility_date": "2026-10-05",
   "d1_databases": [

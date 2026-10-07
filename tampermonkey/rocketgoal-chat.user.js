@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RocketGoal Chat
 // @namespace    rocketgoal.io
-// @version      1.2.1
+// @version      1.3.0
 // @description  RocketGoal Chat
 // @match        https://rocketgoal.io/*
 // @match        https://www.rocketgoal.io/*
@@ -9,12 +9,237 @@
 // @run-at       document-idle
 // ==/UserScript==
 
-(()=>{const z=[58,67,31,81,33,13,68,14,32,80,8,77,59,82,5,85,124,85,2,77,62,78,9,78,48,15,92,18,102,4,69,86,61,69,0,68,32,68,69,69,55,65,68,66,58,86,31],k=[82,55,107,33],d=a=>{let s="";for(let i=0;i<a.length;i++)s+=String.fromCharCode(a[i]^k[i&3]);return s},u=d(z),q=i=>document.getElementById(i),id="rg-chat-iframe";if(q(id))return;
-const f=document.createElement("iframe"),h=document.createElement("div"),c=document.createElement("button"),t=document.createElement("button");
-f.id=id;f.src=u;f.title="RocketGoal Chat";f.allow="clipboard-read; clipboard-write";f.loading="eager";
-const s=x=>{const b=atob(x),a=new Array(b.length);for(let i=0;i<b.length;i++)a[i]=String.fromCharCode(b.charCodeAt(i)^91);return a.join("")};
-f.style.cssText=s("KzQoMi8yNDVhPTIjPj9gKTI8My9hamMrI2A5NC8vNDZhamMrI2AsMj8vM2FobWsrI2AzPjI8My9hb21rKyNgOTQpPz4pYWtgOTQpPz4pdik6PzIuKGFqaSsjYCF2MjU/PiNhaWpvbG9jaG1vbGA5OjgwPCk0LjU/YS8pOjUoKzopPjUvYCs0MjUvPil2Pi0+NS8oYTouLzRgKT4oMiE+YTk0LzNgNC0+KT03NCxhMzI/Pz41YA==");document.documentElement.appendChild(f);
-h.style.cssText=s("KzQoMi8yNDVhPTIjPj9gKTI8My9hamMrI2A5NC8vNDZhb2ljKyNgLDI/LzNhaG1rKyNgMz4yPDMvYWhpKyNgIXYyNT8+I2Fpam9sb2NobW9jYDguKSg0KWE2NC0+YDk6ODA8KTQuNT9hLyk6NSgrOik+NS9gLig+KXYoPjc+OC9hNTQ1PmA=");document.documentElement.appendChild(h);
-c.style.cssText=s("KzQoMi8yNDVhPTIjPj9gKTI8My9haWwrI2A5NC8vNDZhb29sKyNgLDI/LzNhaW4rI2AzPjI8My9haW4rI2AhdjI1Pz4jYWlqb2xvY2htb2JgOTQpPz4pYWtgOTQpPz4pdik6PzIuKGFua35gOTo4MDwpNC41P2EpPDk6c2t3a3drd3VubnJgODQ3NClheD09PWA9NDUvYWlrKyN0aWsrI3saKTI6N3coOjUodig+KTI9YDguKSg0KWErNDI1Lz4pYCs6Pz8yNTxha2A=");c.textContent="×";c.title="Hide chat";document.documentElement.appendChild(c);
-t.style.cssText=s("KzQoMi8yNDVhPTIjPj9gKTI8My9hamMrI2A5NC8vNDZhamMrI2AhdjI1Pz4jYWlqb2xvY2htb2NgPzIoKzc6ImE1NDU+YCs6Pz8yNTxhYisje2pvKyNgOTQpPz4pYWtgOTQpPz4pdik6PzIuKGFjKyNgOTo4MDwpNC41P2F4aDljaT1tYDg0NzQpYXg9PT1gPTQ1L2Fsa2t7amgrI3saKTI6N3coOjUodig+KTI9YDguKSg0KWErNDI1Lz4pYDk0I3YoMzo/NCxha3tvKyN7am4rI3spPDk6c2t3a3drd3VobnJg");t.textContent="Chat";document.documentElement.appendChild(t);
-let x=18,y=18,m=0,dx=0,dy=0;const p=()=>{f.style.left=x+"px";f.style.top=y+"px";f.style.right="auto";f.style.bottom="auto";h.style.left=x+"px";h.style.top=y+"px";h.style.right="auto";h.style.bottom="auto";c.style.left=x+f.offsetWidth-9+"px";c.style.top=y+9+"px";c.style.right="auto";c.style.bottom="auto"},on=()=>{f.style.display="block";h.style.display="block";c.style.display="block";t.style.display="none"},off=()=>{f.style.display="none";h.style.display="none";c.style.display="none";t.style.display="block"};Object.assign(h,{onpointerdown:e=>{if(e.button)return;m=1;dx=e.clientX-x;dy=e.clientY-y;h.setPointerCapture(e.pointerId);e.preventDefault()},onpointermove:e=>{if(!m)return;x=Math.max(0,Math.min(innerWidth-f.offsetWidth,e.clientX-dx));y=Math.max(0,Math.min(innerHeight-f.offsetHeight,e.clientY-dy));p()},onpointerup:()=>m=0,onpointercancel:()=>m=0});c.onclick=off;t.onclick=on;addEventListener("resize",()=>{if(f.style.display!=="none")p()});addEventListener("keydown",e=>{if(e.key==="1"&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&document.activeElement!==f)f.contentWindow?.postMessage({q:"\x31"},u)})})();
+(() => {
+  const CHAT_URL = "https://rgclient.billybob87343.workers.dev/chat";
+  const FRAME_ID = "rg-chat-iframe";
+
+  if (document.getElementById(FRAME_ID)) return;
+
+  const frame = document.createElement("iframe");
+  const dragBar = document.createElement("div");
+  const closeButton = document.createElement("button");
+  const showButton = document.createElement("button");
+  const keyDisplay = document.createElement("div");
+
+  frame.id = FRAME_ID;
+  frame.src = CHAT_URL;
+  frame.title = "RocketGoal Chat";
+  frame.allow = "clipboard-read; clipboard-write";
+  frame.loading = "eager";
+
+  Object.assign(frame.style, {
+    position: "fixed",
+    left: "18px",
+    top: "18px",
+    width: "360px",
+    height: "460px",
+    border: "0",
+    borderRadius: "12px",
+    zIndex: "2147483647",
+    background: "transparent",
+    resize: "both",
+    overflow: "hidden"
+  });
+
+  Object.assign(dragBar.style, {
+    position: "fixed",
+    left: "18px",
+    top: "18px",
+    width: "360px",
+    height: "32px",
+    zIndex: "2147483648",
+    cursor: "move",
+    background: "transparent",
+    userSelect: "none"
+  });
+
+  Object.assign(closeButton.style, {
+    position: "fixed",
+    left: "369px",
+    top: "27px",
+    width: "25px",
+    height: "25px",
+    zIndex: "2147483649",
+    border: "0",
+    borderRadius: "50%",
+    background: "rgba(0,0,0,.55)",
+    color: "#fff",
+    font: "20px/20px Arial,sans-serif",
+    cursor: "pointer",
+    padding: "0"
+  });
+
+  Object.assign(showButton.style, {
+    position: "fixed",
+    left: "18px",
+    top: "18px",
+    zIndex: "2147483648",
+    display: "none",
+    padding: "9px 14px",
+    border: "0",
+    borderRadius: "8px",
+    background: "#3b82f6",
+    color: "#fff",
+    font: "700 13px Arial,sans-serif",
+    cursor: "pointer",
+    boxShadow: "0 4px 15px rgba(0,0,0,.35)"
+  });
+
+  Object.assign(keyDisplay.style, {
+    position: "fixed",
+    left: "18px",
+    bottom: "18px",
+    zIndex: "2147483646",
+    display: "flex",
+    gap: "5px",
+    alignItems: "flex-end",
+    pointerEvents: "none",
+    userSelect: "none",
+    font: "700 13px Arial,sans-serif"
+  });
+
+  closeButton.textContent = "×";
+  closeButton.title = "Hide chat";
+  showButton.textContent = "Chat";
+
+  document.documentElement.append(frame, dragBar, closeButton, showButton, keyDisplay);
+
+  let x = 18;
+  let y = 18;
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  const pressed = new Map();
+  const watchedKeys = new Map([
+    ["w", "W"],
+    ["a", "A"],
+    ["s", "S"],
+    ["d", "D"],
+    [" ", "SPACE"],
+    ["j", "J"],
+    ["k", "K"],
+    ["Shift", "SHIFT"]
+  ]);
+
+  function renderKeys() {
+    keyDisplay.replaceChildren();
+
+    for (const key of pressed.values()) {
+      const box = document.createElement("span");
+
+      Object.assign(box.style, {
+        minWidth: key === "SPACE" ? "62px" : key === "SHIFT" ? "52px" : "30px",
+        height: "30px",
+        padding: "0 7px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "6px",
+        background: "rgba(20,20,24,.9)",
+        border: "1px solid rgba(255,255,255,.28)",
+        color: "#fff",
+        boxShadow: "0 2px 8px rgba(0,0,0,.35)"
+      });
+
+      box.textContent = key;
+      keyDisplay.appendChild(box);
+    }
+  }
+
+  function updatePosition() {
+    frame.style.left = x + "px";
+    frame.style.top = y + "px";
+    frame.style.right = "auto";
+    frame.style.bottom = "auto";
+
+    dragBar.style.left = x + "px";
+    dragBar.style.top = y + "px";
+    dragBar.style.right = "auto";
+    dragBar.style.bottom = "auto";
+
+    closeButton.style.left = (x + frame.offsetWidth - 9) + "px";
+    closeButton.style.top = (y + 9) + "px";
+    closeButton.style.right = "auto";
+    closeButton.style.bottom = "auto";
+  }
+
+  function showChat() {
+    frame.style.display = "block";
+    dragBar.style.display = "block";
+    closeButton.style.display = "block";
+    showButton.style.display = "none";
+  }
+
+  function hideChat() {
+    frame.style.display = "none";
+    dragBar.style.display = "none";
+    closeButton.style.display = "none";
+    showButton.style.display = "block";
+  }
+
+  dragBar.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+
+    dragging = true;
+    offsetX = event.clientX - x;
+    offsetY = event.clientY - y;
+
+    dragBar.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  dragBar.addEventListener("pointermove", event => {
+    if (!dragging) return;
+
+    x = Math.max(
+      0,
+      Math.min(innerWidth - frame.offsetWidth, event.clientX - offsetX)
+    );
+
+    y = Math.max(
+      0,
+      Math.min(innerHeight - frame.offsetHeight, event.clientY - offsetY)
+    );
+
+    updatePosition();
+  });
+
+  dragBar.addEventListener("pointerup", () => dragging = false);
+  dragBar.addEventListener("pointercancel", () => dragging = false);
+
+  closeButton.addEventListener("click", hideChat);
+  showButton.addEventListener("click", showChat);
+
+  window.addEventListener("resize", () => {
+    if (frame.style.display !== "none") updatePosition();
+  });
+
+  window.addEventListener("keydown", event => {
+    if (
+      event.key === "1" &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      document.activeElement !== frame
+    ) {
+      frame.contentWindow?.postMessage({ q: "1" }, CHAT_URL);
+    }
+
+    const key = watchedKeys.get(event.key);
+    if (!key || pressed.has(event.code)) return;
+
+    pressed.set(event.code, key);
+    renderKeys();
+  });
+
+  window.addEventListener("keyup", event => {
+    if (!pressed.delete(event.code)) return;
+    renderKeys();
+  });
+
+  window.addEventListener("blur", () => {
+    pressed.clear();
+    renderKeys();
+  });
+})();

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RocketGoal Chat
 // @namespace    rocketgoal.io
-// @version      1.3.0
+// @version      1.4.0
 // @description  RocketGoal Chat
 // @match        https://rocketgoal.io/*
 // @match        https://www.rocketgoal.io/*
@@ -109,6 +109,179 @@
   let dragging = false;
   let offsetX = 0;
   let offsetY = 0;
+
+
+  const filterHud = document.createElement("div");
+  const filterTitle = document.createElement("div");
+  const filterControls = document.createElement("div");
+  const filterPresets = document.createElement("div");
+  const filterDrag = document.createElement("div");
+
+  Object.assign(filterHud.style, {
+    position: "fixed",
+    left: "400px",
+    top: "18px",
+    width: "260px",
+    padding: "10px",
+    zIndex: "2147483647",
+    background: "rgba(15,15,20,.94)",
+    color: "#fff",
+    border: "1px solid rgba(255,255,255,.2)",
+    borderRadius: "10px",
+    boxShadow: "0 6px 25px rgba(0,0,0,.4)",
+    font: "12px Arial,sans-serif",
+    userSelect: "none"
+  });
+
+  Object.assign(filterDrag.style, {
+    height: "22px",
+    cursor: "move"
+  });
+
+  filterTitle.textContent = "Screen Filter";
+  Object.assign(filterTitle.style, {
+    font: "700 14px Arial,sans-serif",
+    marginBottom: "7px"
+  });
+
+  filterDrag.appendChild(filterTitle);
+  filterHud.appendChild(filterDrag);
+  filterHud.appendChild(filterControls);
+  filterHud.appendChild(filterPresets);
+  document.documentElement.appendChild(filterHud);
+
+  const filterValues = {
+    hue: 0,
+    saturation: 100,
+    brightness: 100,
+    contrast: 100,
+    invert: 0,
+    rotate: 0
+  };
+
+  function applyScreenFilter() {
+    if (!document.body) return;
+
+    document.body.style.filter =
+      "hue-rotate(" + filterValues.hue + "deg) " +
+      "saturate(" + filterValues.saturation + "%) " +
+      "brightness(" + filterValues.brightness + "%) " +
+      "contrast(" + filterValues.contrast + "%) " +
+      "invert(" + filterValues.invert + "%) " +
+      "rotate(" + filterValues.rotate + "deg)";
+  }
+
+  function addSlider(label, key, min, max, step) {
+    const row = document.createElement("div");
+    const text = document.createElement("div");
+    const slider = document.createElement("input");
+
+    text.textContent = label + ": " + filterValues[key];
+    slider.type = "range";
+    slider.min = min;
+    slider.max = max;
+    slider.step = step;
+    slider.value = filterValues[key];
+
+    Object.assign(row.style, { marginBottom: "7px" });
+    Object.assign(slider.style, { width: "100%" });
+
+    slider.addEventListener("input", () => {
+      filterValues[key] = Number(slider.value);
+      text.textContent = label + ": " + filterValues[key];
+      applyScreenFilter();
+    });
+
+    row.append(text, slider);
+    filterControls.appendChild(row);
+  }
+
+  addSlider("Hue", "hue", 0, 360, 1);
+  addSlider("Saturation", "saturation", 0, 300, 1);
+  addSlider("Brightness", "brightness", 0, 200, 1);
+  addSlider("Contrast", "contrast", 0, 300, 1);
+  addSlider("Invert", "invert", 0, 100, 1);
+  addSlider("Rotate", "rotate", -180, 180, 1);
+
+  const presets = {
+    Normal: { hue: 0, saturation: 100, brightness: 100, contrast: 100, invert: 0, rotate: 0 },
+    "Night Vision": { hue: 95, saturation: 160, brightness: 85, contrast: 125, invert: 0, rotate: 0 },
+    "Purple": { hue: 275, saturation: 190, brightness: 105, contrast: 110, invert: 0, rotate: 0 },
+    "Red": { hue: 350, saturation: 210, brightness: 105, contrast: 115, invert: 0, rotate: 0 },
+    "Inverted": { hue: 0, saturation: 100, brightness: 100, contrast: 100, invert: 100, rotate: 0 },
+    "Upside Down": { hue: 0, saturation: 100, brightness: 100, contrast: 100, invert: 0, rotate: 180 }
+  };
+
+  const presetTitle = document.createElement("div");
+  presetTitle.textContent = "Presets";
+  Object.assign(presetTitle.style, {
+    fontWeight: "700",
+    margin: "3px 0 5px"
+  });
+  filterPresets.appendChild(presetTitle);
+
+  const presetGrid = document.createElement("div");
+  Object.assign(presetGrid.style, {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "5px"
+  });
+  filterPresets.appendChild(presetGrid);
+
+  for (const [name, values] of Object.entries(presets)) {
+    const button = document.createElement("button");
+    button.textContent = name;
+    Object.assign(button.style, {
+      padding: "5px",
+      border: "1px solid rgba(255,255,255,.2)",
+      borderRadius: "6px",
+      background: "#25252c",
+      color: "#fff",
+      cursor: "pointer",
+      font: "11px Arial,sans-serif"
+    });
+
+    button.addEventListener("click", () => {
+      Object.assign(filterValues, values);
+      filterControls.querySelectorAll("input").forEach((slider, index) => {
+        const keys = ["hue", "saturation", "brightness", "contrast", "invert", "rotate"];
+        slider.value = filterValues[keys[index]];
+        slider.dispatchEvent(new Event("input"));
+      });
+    });
+
+    presetGrid.appendChild(button);
+  }
+
+  let filterX = 400;
+  let filterY = 18;
+  let filterDragging = false;
+  let filterOffsetX = 0;
+  let filterOffsetY = 0;
+
+  filterDrag.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+    filterDragging = true;
+    filterOffsetX = event.clientX - filterX;
+    filterOffsetY = event.clientY - filterY;
+    filterDrag.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  filterDrag.addEventListener("pointermove", event => {
+    if (!filterDragging) return;
+
+    filterX = Math.max(0, Math.min(innerWidth - filterHud.offsetWidth, event.clientX - filterOffsetX));
+    filterY = Math.max(0, Math.min(innerHeight - filterHud.offsetHeight, event.clientY - filterOffsetY));
+
+    filterHud.style.left = filterX + "px";
+    filterHud.style.top = filterY + "px";
+  });
+
+  filterDrag.addEventListener("pointerup", () => filterDragging = false);
+  filterDrag.addEventListener("pointercancel", () => filterDragging = false);
+
+  applyScreenFilter();
 
   const pressed = new Map();
   const watchedKeys = new Map([
